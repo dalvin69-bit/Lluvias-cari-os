@@ -7,8 +7,8 @@
 <style>
 :root {
   --bg1: #000000;
-  --msgColor: #ff0000; /* Letras en color rojo */
-  --tapMsgColor: #ff0000; /* Color del mensaje al tocar */
+  --msgColor: #ff0000; /* Color de la lluvia (rojo/rosa) */
+  --tapMsgColor: #ff0000; /* Color del efecto al tocar */
 }
 
 html, body {
@@ -28,7 +28,7 @@ body {
 
 .mensaje {
   position: absolute;
-  top: -50px;
+  top: 0;
   font-size: 20px;
   font-weight: 800;
   color: var(--msgColor);
@@ -46,7 +46,19 @@ body {
   }
   to {
     transform: translateY(110vh);
-    opacity: 0.1; /* Reducir opacidad al final para efecto de desvanecimiento */
+    opacity: 0.15;
+  }
+}
+
+.tap-mensaje {
+  animation: explotar 1s forwards cubic-bezier(0.19, 1, 0.22, 1);
+  opacity: 1;
+}
+
+@keyframes explotar {
+  to {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
   }
 }
 
@@ -85,8 +97,16 @@ body {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const mensajeLluvia = "Te quiero ";
+  const mensajeLluvia = "te quiero🌹";
   const mensajeTap = "my type🌹";
+  const numColumnas = 20;
+  const posicionesX = [];
+
+  // Calcular las posiciones de las columnas para la lluvia
+  for (let i = 0; i < numColumnas; i++) {
+    const x = (i / (numColumnas - 1)) * 100;
+    posicionesX.push(x);
+  }
 
   let activo = true;
   const toggle = document.getElementById('toggle');
@@ -95,52 +115,53 @@ document.addEventListener('DOMContentLoaded', () => {
     toggle.textContent = activo ? "⏸︎ Pausar" : "▶️ Reanudar";
   });
 
-  function crearMensaje(texto, color, xPos) {
+  function crearMensajeLluvia(xPos) {
     if (!activo) return;
 
     const el = document.createElement("div");
     el.className = "mensaje";
-    el.textContent = texto;
-
-    // Usar la posición x que se le pasa, o generar una nueva
-    const margen = 10;
-    const x = xPos || (Math.random() * (window.innerWidth - margen * 2) + margen);
-    el.style.left = x + "px";
-
-    if (color) {
-      el.style.color = color;
-    }
-
-    const duracion = 1 + Math.random() * 1.5;
-    const tam = 16 + Math.random() * 15;
+    el.textContent = mensajeLluvia;
+    el.style.left = xPos + "%";
+    
+    const duracion = 1 + Math.random() * 2;
     el.style.animationDuration = duracion + "s";
-    el.style.fontSize = tam + "px";
-    el.style.transform = "rotate(" + (Math.random()*10 - 5) + "deg)";
+    el.style.fontSize = (16 + Math.random() * 10) + "px";
     
     document.body.appendChild(el);
     setTimeout(() => el.remove(), duracion * 1000 + 100);
   }
 
-  // Generar varias columnas de "Te quiero"
-  function crearColumna() {
+  function crearMensajeTap(x, y) {
     if (!activo) return;
-    const numMensajes = 5 + Math.random() * 5; // Cantidad de mensajes por columna
-    const x = Math.random() * (window.innerWidth - 20) + 10; // Posición horizontal aleatoria
-    
-    for (let i = 0; i < numMensajes; i++) {
-      setTimeout(() => {
-        crearMensaje(mensajeLluvia, 'var(--msgColor)', x);
-      }, i * 150); // Retraso entre mensajes para crear el efecto de "rastro"
-    }
+    const el = document.createElement("div");
+    el.className = "mensaje tap-mensaje";
+    el.textContent = mensajeTap;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.fontSize = (20 + Math.random() * 30) + "px";
+
+    // Mover el mensaje a un lugar aleatorio alrededor del clic
+    const offsetX = (Math.random() - 0.5) * 400;
+    const offsetY = (Math.random() - 0.5) * 400;
+    el.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${Math.random()*360}deg)`;
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000); // Duración de la animación de explosión
   }
 
-  // Lluvia constante de columnas
-  setInterval(crearColumna, 500); // Crea una nueva columna cada 500ms
+  // Lluvia de "te quiero🌹" en columnas
+  let i = 0;
+  setInterval(() => {
+    crearMensajeLluvia(posicionesX[i]);
+    i = (i + 1) % posicionesX.length;
+  }, 100);
 
-  // Lluvia intensa de "my type🌹" al hacer clic
-  document.body.addEventListener('click', () => {
-    for (let i = 0; i < 200; i++) {
-      crearMensaje(mensajeTap, 'var(--tapMsgColor)');
+  // Lluvia intensa de "my type🌹" al hacer clic o tocar
+  document.body.addEventListener('click', (e) => {
+    for (let i = 0; i < 30; i++) {
+      setTimeout(() => {
+        crearMensajeTap(e.clientX, e.clientY);
+      }, i * 20); // Pequeño retraso para el efecto de ráfaga
     }
   });
 });
