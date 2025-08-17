@@ -40,9 +40,13 @@ body {
 }
 
 @keyframes caer {
+  from {
+    transform: translateY(-50px);
+    opacity: 0.92;
+  }
   to {
     transform: translateY(110vh);
-    opacity: 0.25;
+    opacity: 0.1; /* Reducir opacidad al final para efecto de desvanecimiento */
   }
 }
 
@@ -81,7 +85,7 @@ body {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const mensajeLluvia = "Te amo ";
+  const mensajeLluvia = "Te quiero ";
   const mensajeTap = "my type🌹";
 
   let activo = true;
@@ -91,15 +95,16 @@ document.addEventListener('DOMContentLoaded', () => {
     toggle.textContent = activo ? "⏸︎ Pausar" : "▶️ Reanudar";
   });
 
-  function crearMensaje(texto, color) {
+  function crearMensaje(texto, color, xPos) {
     if (!activo) return;
 
     const el = document.createElement("div");
     el.className = "mensaje";
     el.textContent = texto;
 
+    // Usar la posición x que se le pasa, o generar una nueva
     const margen = 10;
-    const x = Math.random() * (window.innerWidth - margen * 2) + margen;
+    const x = xPos || (Math.random() * (window.innerWidth - margen * 2) + margen);
     el.style.left = x + "px";
 
     if (color) {
@@ -116,8 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => el.remove(), duracion * 1000 + 100);
   }
 
-  // Lluvia constante y rápida de "Te amo"
-  setInterval(() => crearMensaje(mensajeLluvia, 'var(--msgColor)'), 50);
+  // Generar varias columnas de "Te quiero"
+  function crearColumna() {
+    if (!activo) return;
+    const numMensajes = 5 + Math.random() * 5; // Cantidad de mensajes por columna
+    const x = Math.random() * (window.innerWidth - 20) + 10; // Posición horizontal aleatoria
+    
+    for (let i = 0; i < numMensajes; i++) {
+      setTimeout(() => {
+        crearMensaje(mensajeLluvia, 'var(--msgColor)', x);
+      }, i * 150); // Retraso entre mensajes para crear el efecto de "rastro"
+    }
+  }
+
+  // Lluvia constante de columnas
+  setInterval(crearColumna, 500); // Crea una nueva columna cada 500ms
 
   // Lluvia intensa de "my type🌹" al hacer clic
   document.body.addEventListener('click', () => {
