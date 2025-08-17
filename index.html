@@ -3,49 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lluvia de Mensajes para Raiveli</title>
+  <title>Lluvia de Mensajes para Rai</title>
   <style>
-    :root {
-      --bg1: #ff9a9e;
-      --bg2: #fad0c4;
-    }
+    :root { --bg1: #000000; --msgColor: #ff0000; }
     html, body { margin: 0; height: 100%; }
     body {
-      background: linear-gradient(120deg, var(--bg1), var(--bg2));
+      background: var(--bg1);
       overflow: hidden;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
     .mensaje {
-      position: absolute;
-      top: -50px;
-      font-size: 2rem;
-      font-weight: 800;
-      color: #ffffff;
+      position: absolute; top: -50px;
+      font-size: 2rem; font-weight: 800; color: var(--msgColor);
       text-shadow: 2px 2px 6px rgba(0,0,0,.45);
-      animation: caer linear forwards;
-      opacity: .92;
-      white-space: nowrap;
-      pointer-events: none;
+      animation: caer linear forwards; opacity: .92;
+      white-space: nowrap; pointer-events: none;
     }
-    @keyframes caer {
-      to { transform: translateY(110vh); opacity: .25; }
-    }
+    @keyframes caer { to { transform: translateY(110vh); opacity: .25; } }
     .btn {
-      position: fixed;
-      right: 12px;
-      bottom: 12px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.2);
-      border: 1px solid rgba(255,255,255,.5);
-      backdrop-filter: blur(8px);
-      font-weight: 700;
+      position: fixed; right: 12px; bottom: 12px;
+      padding: 10px 14px; border-radius: 999px;
+      background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.5);
+      backdrop-filter: blur(8px); font-weight: 700;
+    }
+    .fondoTexto {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem; font-weight: 900;
+      color: rgba(255,0,0,0.2);
+      pointer-events: none;
+      user-select: none;
+      text-align: center;
     }
   </style>
 </head>
 <body>
+  <div class="fondoTexto">Para mí Rai</div>
   <button class="btn" id="toggle">⏸︎ Pausar</button>
   <script>
     const mensajes = [
@@ -62,12 +59,32 @@
       toggle.textContent = activo ? "⏸︎ Pausar" : "▶️ Reanudar";
     });
 
-    function crearMensaje() {
+    function crearMensaje(texto) {
       if (!activo) return;
       const el = document.createElement("div");
       el.className = "mensaje";
-      el.textContent = mensajes[Math.floor(Math.random() * mensajes.length)];
+      el.textContent = texto || mensajes[Math.floor(Math.random() * mensajes.length)];
       const margen = 20;
       const x = Math.random() * (window.innerWidth - margen * 2) + margen;
       el.style.left = x + "px";
-      const duracion =
+      const duracion = 3 + Math.random() * 3;   // 3 a 6 s
+      const tam = 22 + Math.random() * 22;      // 22 a 44 px
+      el.style.animationDuration = duracion + "s";
+      el.style.fontSize = tam + "px";
+      el.style.transform = "rotate(" + (Math.random()*10 - 5) + "deg)";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), duracion * 1000 + 100);
+    }
+
+    // Lluvia normal
+    setInterval(() => crearMensaje(), 280);
+
+    // Efecto "lluvia intensa" al tocar la pantalla
+    document.body.addEventListener('click', () => {
+      for (let i=0; i<100; i++) {  // 100 mensajes de golpe
+        crearMensaje("💖 Te amo 💖");
+      }
+    });
+  </script>
+</body>
+</html>
